@@ -1,0 +1,6 @@
+README.md
+setup.py
+Restful_dict.egg-info/PKG-INFO
+Restful_dict.egg-info/SOURCES.txt
+Restful_dict.egg-info/dependency_links.txt
+Restful_dict.egg-info/top_level.txt

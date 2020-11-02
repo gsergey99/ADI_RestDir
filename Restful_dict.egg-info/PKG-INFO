@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: Restful-dict
+Version: 0.1
+Summary: 
+  Prueba de progreso #1: cliente y servidor REST
+
+Home-page: UNKNOWN
+Author: Alumno
+Author-email: alumno@alu.uclm.es
+License: GPLv3
+Description: UNKNOWN
+Keywords: networking development
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: Topic :: Software Development :: Networking
+Classifier: License :: OSI Approved :: GPLv3 License
+Classifier: Programming Language :: Python :: 3
