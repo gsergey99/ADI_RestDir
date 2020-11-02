@@ -62,6 +62,29 @@ def remove_value(key):
     del _APP_DICT_[key]
     return make_response('', 204)
 
+#FUNCIONES PARA LOS VALORES INTERNOS DE LOS DICCIONARIOS
+
+@_FLASK_APP_.route(f'{API_ROOT}/keys/<key_dict>', methods=['GET'])
+def get_keys_dict(key_dict):
+    return make_response(jsonify({'result': list(_APP_DICT_[key_dict].keys())}), 200)
+
+@_FLASK_APP_.route(f'{API_ROOT}/keys/<key_dict>/<key>', methods=['GET'])
+def get_value_dict(key_dict,key):
+    if key_dict not in _APP_DICT_:
+        abort(404)
+    if key not in _APP_DICT_[key_dict]:
+        abort(404)  
+    return make_response(jsonify({'result': _APP_DICT_[key_dict][key]}), 200)
+
+@_FLASK_APP_.route(f'{API_ROOT}/keys/<key_dict>/<key>', methods=['DELETE'])
+def remove_value_dict(key_dict,key):
+    if key_dict not in _APP_DICT_:
+        abort(404)
+    if key not in _APP_DICT_[key_dict]:
+        abort(404)
+    del _APP_DICT_[key_dict][key]
+    return make_response('', 204)
+
 
 class DictServer:
     '''
