@@ -78,7 +78,7 @@ class TestStress(unittest.TestCase):
         self._server_ = restdict.new_server(SERVER_ADDRESS)
         self._server_.start()
 
-        self._test_dict_ = restdict.new_client(SERVER_API_URI)
+        self._test_dict_ = restdict.new_restdict(SERVER_API_URI)
         self._normal_dict_ = {}
 
     def tearDown(self):
