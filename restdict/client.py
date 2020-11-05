@@ -19,13 +19,20 @@ def _unmarshall_(value):
 
 
 class RestDict(MutableMapping):
+
     def __init__(self, base_api_uri):
-        self._uri_ = base_api_uri
-        if self._uri_.endswith('/'):
-            self._uri_ = self._uri_[:-1]
+        self.uri = base_api_uri
+        
+        if self.uri.endswith('/'):
+            self.uri = self.uri[:-1]
+        
+        result = requests.put(self.uri)
+
+        if result.status_code not in [200, 201]:
+            raise ValueError(f'Cannot create the dict: {result.status_code}')
 
     def keys(self):
-        result = requests.get(f'{self._uri_}/keys')
+        result = requests.get(f'{self.uri}/keys')
         if result.status_code != 200:
             raise ValueError(f'Cannot get keys, status code: {result.status_code}')
         try:
@@ -33,6 +40,11 @@ class RestDict(MutableMapping):
         except Exception as error:
             raise ValueError(f'Cannot get keys: {error}')
         return result
+
+    def delete_dict(self):
+        result = requests.delete(f'{self.uri}')
+        if result.status_code != 200:
+            raise ValueError(f'Cannot delete restdict: {result.status_code} {self.uri}')
 
     def __iter__(self):
         return iter(self.keys())
@@ -43,13 +55,13 @@ class RestDict(MutableMapping):
     def __getitem__(self, key):
         if not isinstance(key, str):
             raise TypeError(key)
-        result = requests.get(f'{self._uri_}/keys/{key}')
+        result = requests.get(f'{self.uri}/keys/{key}')
         if result.status_code == 404:
             raise KeyError(key)
         try:
-            response = result.content.decode()
-            response = json.loads(response)
-            result = response['result']
+    	    response = result.content.decode()
+    	    response = json.loads(response)
+    	    result = response['result']
         except Exception as error:
             raise ValueError(f'Cannot get item: {error}')
         try:
@@ -61,20 +73,20 @@ class RestDict(MutableMapping):
         if not isinstance(key, str):
             raise TypeError(key)
         if key in self.keys():
-            result = requests.post(f'{self._uri_}/keys/{key}', data=_marshall_(value))
+            result = requests.post(f'{self.uri}/keys/{key}', data=_marshall_(value))
         else:
-            result = requests.put(f'{self._uri_}/keys/{key}', data=_marshall_(value))
+            result = requests.put(f'{self.uri}/keys/{key}', data=_marshall_(value))
         if result.status_code not in [200, 201]:
-            raise ValueError(f'Cannot set item: {result.status_code}')
+            raise ValueError(f'Cannot set item -> uri: {self.uri}/keys/{key}  code: {result.status_code}')
 
     def __delitem__(self, key):
         if not isinstance(key, str):
             raise TypeError(key)
-        result = requests.delete(f'{self._uri_}/keys/{key}')
+        result = requests.delete(f'{self.uri}/keys/{key}')
         if result.status_code == 404:
             raise KeyError(key)
         if result.status_code != 204:
             raise RuntimeError(f'Cannot delete key: {result.status_code}')
-        
+
     def _keytransform(self, key):
         return key

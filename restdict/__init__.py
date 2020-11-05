@@ -8,7 +8,9 @@
 import urllib.parse
 from restdict.client import RestDict
 from restdict.server import DictServer
+import uuid
 
+DICT = {}
 
 def new_server(server_address):
     '''
@@ -18,20 +20,32 @@ def new_server(server_address):
 
 
 def new_restdict(server_api_uri, dict_name=None):
-    '''
-    Create new client connected to a given API URI
-    '''
-    return RestDict(server_api_uri)
-
-def delete_restdict(server_api_uri, dict_name=None):
-
     
-    test_dict = RestDict(server_api_uri)
-
-    test_dict.__delitem__(dict_name)
+    if dict_name is None:
+        dict_name = str(uuid.uuid4())
     
+    compl_uri = f'{server_api_uri}/{dict_name}'
+    DICT[compl_uri] = RestDict(compl_uri)
     
+    return DICT[compl_uri]
 
-def connect_restdict(server_api_uri, dict_name=None):
+def connect_restdict(server_api_uri, dict_name):
 
-    return RestDict(server_api_uri)[dict_name]
+    compl_uri = f'{server_api_uri}/{dict_name}'
+
+    if compl_uri not in DICT:
+        raise Exception
+
+    return DICT[compl_uri]
+
+
+def delete_restdict(server_api_uri, dict_name):
+
+    compl_uri = f'{server_api_uri}/{dict_name}'
+
+    if compl_uri not in DICT:
+        raise Exception
+
+    DICT[compl_uri].delete_dict()
+
+    del DICT[compl_uri]

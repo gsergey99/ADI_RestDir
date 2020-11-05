@@ -24,67 +24,67 @@ def new_server(address):
 
 
 _FLASK_APP_ = Flask(__name__.split('.')[0])
-_APP_DICT_ = {}
+APP_DICT = {'default': {}}
 
+@_FLASK_APP_.route(f'{API_ROOT}/<dict_name>', methods=['PUT'])
+def create_dict(dict_name):
+    if dict_name in APP_DICT:
+        abort(400)
+    APP_DICT[dict_name] = dict()
+    return make_response(jsonify( { 'result': APP_DICT[dict_name]  } ),  200)
 
-@_FLASK_APP_.route(f'{API_ROOT}/keys', methods=['GET'])
-def get_keys():
-    return make_response(jsonify({'result': list(_APP_DICT_.keys())}), 200)
+@_FLASK_APP_.route(f'{API_ROOT}/<dict_name>', methods=['DELETE'])
+def delete_dict(dict_name):
+    if dict_name not in APP_DICT:
+        abort(400)
+    del APP_DICT[dict_name]
+    return make_response(jsonify( { 'result': True  } ),  200)
 
-@_FLASK_APP_.route(f'{API_ROOT}/keys/<key>', methods=['GET'])
-def get_value(key):
-    if key not in _APP_DICT_:
+@_FLASK_APP_.route(f'{API_ROOT}/<dict_name>/keys', methods=['GET'])
+def get_keys(dict_name):
+    if dict_name not in APP_DICT.keys():
+        abort(400)
+    return make_response(jsonify( {'result': list ( APP_DICT[dict_name].keys() ) } ), 200)
+
+@_FLASK_APP_.route(f'{API_ROOT}/<dict_name>/keys/<key>', methods=['GET'])
+def get_value(dict_name, key):
+    if dict_name not in APP_DICT.keys():
         abort(404)
-    return make_response(jsonify({'result': _APP_DICT_[key]}), 200)
+    if key not in (APP_DICT[dict_name].keys()):
+        abort(404)
+    return make_response(jsonify({'result': (APP_DICT[dict_name])[key]}), 200)
 
-@_FLASK_APP_.route(f'{API_ROOT}/keys/<key>', methods=['PUT'])
-def create_value(key):
+@_FLASK_APP_.route(f'{API_ROOT}/<dict_name>/keys/<key>', methods=['PUT'])
+def create_value(dict_name, key):
     if (not request.data):
         abort(400)
-    if key in _APP_DICT_:
-        abort(400)
-    _APP_DICT_[key] = request.data.decode()
+    if dict_name not in APP_DICT.keys():
+        abort(404)
+    if key in (APP_DICT[dict_name].keys()):
+        abort(404)
+    (APP_DICT[dict_name])[key] = request.data.decode()
     return make_response(jsonify({'result': {key: request.data.decode()}}), 201)
 
-@_FLASK_APP_.route(f'{API_ROOT}/keys/<key>', methods=['POST'])
-def set_value(key):
+@_FLASK_APP_.route(f'{API_ROOT}/<dict_name>/keys/<key>', methods=['POST'])
+def set_value(dict_name, key):
     if (not request.data):
         abort(400)
-    if key not in _APP_DICT_:
-        abort(400)
-    _APP_DICT_[key] = request.data.decode()
+    if dict_name not in APP_DICT.keys():
+        abort(404)
+    if key not in (APP_DICT[dict_name].keys()):
+        abort(404)
+    (APP_DICT[dict_name])[key] = request.data.decode()
     return make_response(jsonify({'result': {key: request.data.decode()}}), 200)
 
-@_FLASK_APP_.route(f'{API_ROOT}/keys/<key>', methods=['DELETE'])
-def remove_value(key):
-    if key not in _APP_DICT_:
+@_FLASK_APP_.route(f'{API_ROOT}/<dict_name>/keys/<key>', methods=['DELETE'])
+def remove_value(dict_name, key):
+    if dict_name not in APP_DICT.keys():
         abort(404)
-    del _APP_DICT_[key]
+    if key not in (APP_DICT[dict_name].keys()):
+        abort(404)
+    del (APP_DICT[dict_name])[key]
     return make_response('', 204)
 
-#FUNCIONES PARA LOS VALORES INTERNOS DE LOS DICCIONARIOS
-"""
-@_FLASK_APP_.route(f'{API_ROOT}/keys/<key_dict>', methods=['GET'])
-def get_keys_dict(key_dict):
-    return make_response(jsonify({'result': list(_APP_DICT_[key_dict].keys())}), 200)
-
-@_FLASK_APP_.route(f'{API_ROOT}/keys/<key_dict>/<key>', methods=['GET'])
-def get_value_dict(key_dict,key):
-    if key_dict not in _APP_DICT_:
-        abort(404)
-    if key not in _APP_DICT_[key_dict]:
-        abort(404)  
-    return make_response(jsonify({'result': _APP_DICT_[key_dict][key]}), 200)
-
-@_FLASK_APP_.route(f'{API_ROOT}/keys/<key_dict>/<key>', methods=['DELETE'])
-def remove_value_dict(key_dict,key):
-    if key_dict not in _APP_DICT_:
-        abort(404)
-    if key not in _APP_DICT_[key_dict]:
-        abort(404)
-    del _APP_DICT_[key_dict][key]
-    return make_response('', 204)
-"""
 
 class DictServer:
     '''
